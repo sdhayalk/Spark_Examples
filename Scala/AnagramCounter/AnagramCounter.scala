@@ -1,21 +1,16 @@
-import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
+import org.apache.spark.SparkConf
 
 object AnagramCounter	{
-	def reduceDuplicates(args: (String, String))	{
+	def reduceDuplicates(args: (String, String)) :(String, Array[String]) = {
 		val key = args._1
 		val value = args._2
 
-		val valueArray = value.split(" ")
-		var valueSet = valueArray.toSet
+		val valueSplitted = value.split(",")
+		val valueSet = valueSplitted.toSet
+		val valueArray = valueSet.toArray
 
-		var valueString = ""
-		for(element <- valueSet)	{
-			valueString = valueString + element
-		}
-
-		println(key, valueString)
-
+		(key, valueArray)
 	}
 
 	def main(args: Array[String])	{
@@ -28,8 +23,8 @@ object AnagramCounter	{
 		val rdd = inputData.flatMap(line => line.split(" "))
 		val anagramMap = rdd.map(x => (x.sorted, x))
 		val anagramMapTuple = anagramMap.reduceByKey((x,y) => x+","+y)
-		val reduceDup = anagramMap.map(x => reduceDuplicates(x))
-
+		val reduceDup = anagramMapTuple.map(x => reduceDuplicates(x))
+		val result = reduceDup.map(x => (x._1, x._2.length)).filter(x => x._2 > 1)
 
 		result.saveAsTextFile(outputFile)
 
