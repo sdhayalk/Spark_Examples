@@ -1,5 +1,5 @@
-import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext
 
 object AnagramCounter	{
 	def reduceDuplicates(args: (String, String)) :(String, Array[String]) = {
