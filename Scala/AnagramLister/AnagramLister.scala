@@ -1,7 +1,7 @@
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 
-object AnagramCounter	{
+object AnagramLister	{
 	def reduceDuplicates(args: (String, String)) :(String, Array[String]) = {
 		val key = args._1
 		val value = args._2
@@ -17,7 +17,7 @@ object AnagramCounter	{
 	def main(args: Array[String])	{
 		val inputFile = args(0)
 		val outputFile = args(1)
-		val conf = new SparkConf().setAppName("anagram counter")		
+		val conf = new SparkConf().setAppName("anagram lister")		
 		val sc = new SparkContext(conf)
 
 		val inputData = sc.textFile(inputFile)
@@ -25,7 +25,7 @@ object AnagramCounter	{
 		val anagramMap = rdd.map(x => (x.sorted, x))
 		val anagramMapTuple = anagramMap.reduceByKey((x,y) => x+","+y)
 		val reduceDup = anagramMapTuple.map(x => reduceDuplicates(x))
-		val result = reduceDup.map(x => (x._1, x._2.length)).filter(x => x._2 > 1)
+		val result = reduceDup.filter(x => x._2.length > 1)
 
 		result.saveAsTextFile(outputFile)
 	}
